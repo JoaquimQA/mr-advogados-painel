@@ -5,6 +5,7 @@ import { useIsMobile } from '../lib/useIsMobile';
 
 const navItems = [
   { to: '/', label: 'Leads', icon: '👥', end: true },
+  { to: '/processos', label: 'Processos', icon: '⚖️' },
   { to: '/conversas', label: 'Conversas', icon: '💬' },
   { to: '/notificacoes', label: 'Notificações', icon: '🔔', notifKey: true },
   { to: '/configuracoes', label: 'Configurações', icon: '⚙️' },

@@ -25,11 +25,44 @@ export default function Leads() {
   const [carregando, setCarregando] = useState(true);
   const [filtro, setFiltro] = useState('todos');
   const [busca, setBusca] = useState('');
+  const [modalAberto, setModalAberto] = useState(false);
+  const [novoLead, setNovoLead] = useState({ nome: '', numero: '', area_interesse: '' });
+  const [salvandoNovo, setSalvandoNovo] = useState(false);
+  const [erroNovo, setErroNovo] = useState('');
 
   useEffect(() => {
     if (!cliente) return;
     carregar();
   }, [cliente]);
+
+  function normalizaNumero(raw) {
+    let n = String(raw || '').replace(/\D/g, '');
+    if (n.length === 10 || n.length === 11) n = '55' + n;
+    return n;
+  }
+
+  async function criarLead() {
+    setErroNovo('');
+    const numero = normalizaNumero(novoLead.numero);
+    if (!numero) { setErroNovo('Informe um número de WhatsApp.'); return; }
+    setSalvandoNovo(true);
+    const { error } = await supabase.from('contatos').insert({
+      cliente_id: cliente.id,
+      numero,
+      nome: novoLead.nome || null,
+      area_interesse: novoLead.area_interesse || null,
+      classificacao_lead: 'novo',
+      origem: 'manual',
+    });
+    setSalvandoNovo(false);
+    if (error) {
+      setErroNovo(error.code === '23505' ? 'Esse número já está cadastrado.' : 'Não consegui salvar. Tenta de novo.');
+      return;
+    }
+    setModalAberto(false);
+    setNovoLead({ nome: '', numero: '', area_interesse: '' });
+    carregar();
+  }
 
   async function carregar() {
     setCarregando(true);
@@ -68,8 +101,13 @@ export default function Leads() {
 
   return (
     <div>
-      <h1 style={{ ...styles.title, ...(isMobile ? styles.titleMobile : {}) }}>Leads</h1>
-      <div style={styles.sub}>{contatos.length} contatos na sua base.</div>
+      <div style={{ display: 'flex', alignItems: isMobile ? 'stretch' : 'flex-start', justifyContent: 'space-between', flexDirection: isMobile ? 'column' : 'row', gap: 14, marginBottom: 6 }}>
+        <div>
+          <h1 style={{ ...styles.title, ...(isMobile ? styles.titleMobile : {}) }}>Leads</h1>
+          <div style={styles.sub}>{contatos.length} contatos na sua base.</div>
+        </div>
+        <button onClick={() => setModalAberto(true)} style={styles.btnPrimary}>+ Criar lead</button>
+      </div>
 
       <div style={{ ...styles.filterRow, ...(isMobile ? styles.filterRowMobile : {}) }}>
         {CLASSIFICACOES.map((f) => (
@@ -118,6 +156,30 @@ export default function Leads() {
           </div>
         );
       })}
+
+      {modalAberto && (
+        <div style={styles.overlay} onClick={() => !salvandoNovo && setModalAberto(false)}>
+          <div style={styles.modal} onClick={(e) => e.stopPropagation()}>
+            <div style={{ fontWeight: 700, fontSize: 20, marginBottom: 18, fontFamily: 'Fraunces, serif' }}>Criar lead</div>
+
+            <label style={styles.label}>Nome</label>
+            <input style={styles.input} value={novoLead.nome} onChange={(e) => setNovoLead({ ...novoLead, nome: e.target.value })} placeholder="Nome do contato" />
+
+            <label style={styles.label}>Número do WhatsApp</label>
+            <input style={styles.input} value={novoLead.numero} onChange={(e) => setNovoLead({ ...novoLead, numero: e.target.value })} placeholder="51999999999" />
+
+            <label style={styles.label}>Área de interesse (opcional)</label>
+            <input style={styles.input} value={novoLead.area_interesse} onChange={(e) => setNovoLead({ ...novoLead, area_interesse: e.target.value })} placeholder="Ex: Trabalhista" />
+
+            {erroNovo && <div style={{ color: '#c0392b', fontSize: 13, marginTop: 10 }}>{erroNovo}</div>}
+
+            <div style={{ display: 'flex', gap: 10, marginTop: 22 }}>
+              <button onClick={criarLead} disabled={salvandoNovo} style={styles.btnPrimary}>{salvandoNovo ? 'Salvando...' : 'Criar'}</button>
+              <button onClick={() => setModalAberto(false)} style={styles.btnSecondary}>Cancelar</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -139,4 +201,10 @@ const styles = {
   select: { border: 'none', borderRadius: 10, padding: '8px 12px', fontSize: 12.5, fontWeight: 700, flexShrink: 0 },
   btnWpp: { display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: '#25D366', width: 34, height: 34, borderRadius: 10, textDecoration: 'none', fontSize: 15, flexShrink: 0 },
   btnDelete: { background: 'transparent', color: '#E24B4A', border: '1.5px solid #E4E7EE', width: 34, height: 34, borderRadius: 10, cursor: 'pointer', flexShrink: 0 },
+  btnPrimary: { background: '#22C55E', color: 'white', border: 'none', padding: '12px 20px', borderRadius: 12, fontSize: 14.5, fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap' },
+  btnSecondary: { background: 'transparent', color: '#6b7893', border: '1.5px solid #E4E7EE', padding: '12px 20px', borderRadius: 12, fontSize: 14.5, fontWeight: 700, cursor: 'pointer' },
+  overlay: { position: 'fixed', inset: 0, background: 'rgba(20,29,46,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100, padding: 20 },
+  modal: { background: 'white', borderRadius: 20, padding: 28, width: 400, maxWidth: '100%' },
+  label: { display: 'block', fontWeight: 600, fontSize: 13.5, marginTop: 14, marginBottom: 6 },
+  input: { width: '100%', padding: '11px 14px', borderRadius: 10, border: '1.5px solid #E4E7EE', fontSize: 14.5, boxSizing: 'border-box' },
 };

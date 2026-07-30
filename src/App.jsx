@@ -3,6 +3,7 @@ import { AuthProvider, useAuth } from './lib/AuthContext';
 import Layout from './components/Layout';
 import Login from './pages/Login';
 import Leads from './pages/Leads';
+import Processos from './pages/Processos';
 import Conversas from './pages/Conversas';
 import Notificacoes from './pages/Notificacoes';
 import Configuracoes from './pages/Configuracoes';
@@ -21,6 +22,7 @@ function AppRoutes() {
     <Routes>
       <Route path="/login" element={<Login />} />
       <Route path="/" element={<RotaProtegida><Leads /></RotaProtegida>} />
+      <Route path="/processos" element={<RotaProtegida><Processos /></RotaProtegida>} />
       <Route path="/conversas" element={<RotaProtegida><Conversas /></RotaProtegida>} />
       <Route path="/notificacoes" element={<RotaProtegida><Notificacoes /></RotaProtegida>} />
       <Route path="/configuracoes" element={<RotaProtegida><Configuracoes /></RotaProtegida>} />

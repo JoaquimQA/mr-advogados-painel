@@ -8,14 +8,12 @@ const SEVERIDADES = [
   { key: 'urgente', label: '🔴 Urgente' },
   { key: 'acao', label: '🟡 Ação necessária' },
   { key: 'info', label: '🟢 Informativo' },
-  { key: 'diario', label: '🔵 Diário' },
 ];
 
 const SEVERIDADE_STYLE = {
-  urgente: { bg: 'var(--clay-soft)', color: 'var(--danger)' },
-  acao: { bg: 'var(--gold-soft)', color: 'var(--warning)' },
-  info: { bg: 'var(--moss-soft)', color: 'var(--moss-deep)' },
-  diario: { bg: 'var(--info-bg)', color: 'var(--info)' },
+  urgente: { bg: '#FCEBEB', color: '#791F1F' },
+  acao: { bg: '#FAEEDA', color: '#854F0B' },
+  info: { bg: '#EAF3DE', color: '#3B6D11' },
 };
 
 export default function Notificacoes() {
@@ -56,7 +54,8 @@ export default function Notificacoes() {
   }
 
   function formataQuando(iso) {
-    const d = new Date(iso);
+    const isoUtc = /[Zz]|[+-]\d{2}:?\d{2}$/.test(iso) ? iso : `${iso}Z`;
+    const d = new Date(isoUtc);
     return d.toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo', day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
   }
 
@@ -110,9 +109,9 @@ export default function Notificacoes() {
         </div>
       </div>
 
-      {carregando && <div style={{ color: 'var(--ink-soft)' }}>Carregando...</div>}
+      {carregando && <div style={{ color: '#6b7893' }}>Carregando...</div>}
       {!carregando && listaFiltrada.length === 0 && (
-        <div style={{ color: 'var(--ink-soft)', fontSize: 15 }}>Nenhuma notificação por aqui.</div>
+        <div style={{ color: '#6b7893', fontSize: 15 }}>Nenhuma notificação por aqui.</div>
       )}
 
       {listaFiltrada.map((n) => {
@@ -128,8 +127,8 @@ export default function Notificacoes() {
                 </span>
                 {!n.lida && <span style={styles.pontoNaoLida} />}
               </div>
-              {n.mensagem && <div style={{ fontSize: 13.5, color: 'var(--ink-soft)', marginTop: 4 }}>{n.mensagem}</div>}
-              <div style={{ fontSize: 12, color: 'var(--ink-soft)', marginTop: 6 }}>
+              {n.mensagem && <div style={{ fontSize: 13.5, color: '#6b7893', marginTop: 4 }}>{n.mensagem}</div>}
+              <div style={{ fontSize: 12, color: '#6b7893', marginTop: 6 }}>
                 {formataQuando(n.criado_em)}
                 {n.contato_nome ? ` · ${n.contato_nome}` : ''}
               </div>
@@ -154,17 +153,17 @@ const styles = {
   topRowMobile: { flexDirection: 'column', gap: 14, marginBottom: 18 },
   title: { fontFamily: 'Fraunces, serif', fontSize: 34, fontWeight: 600, marginBottom: 6 },
   titleMobile: { fontSize: 24 },
-  sub: { color: 'var(--ink-soft)', fontSize: 16 },
-  btnSecondary: { background: 'transparent', color: 'var(--ink-soft)', border: '1.5px solid var(--line)', padding: '11px 18px', borderRadius: 12, fontSize: 14, fontWeight: 700, whiteSpace: 'nowrap' },
+  sub: { color: '#6b7893', fontSize: 16 },
+  btnSecondary: { background: 'transparent', color: '#6b7893', border: '1.5px solid #E4E7EE', padding: '11px 18px', borderRadius: 12, fontSize: 14, fontWeight: 700, whiteSpace: 'nowrap', cursor: 'pointer' },
   filterRow: { display: 'flex', gap: 10, marginBottom: 24, flexWrap: 'wrap' },
   filterRowMobile: { flexWrap: 'nowrap', overflowX: 'auto', paddingBottom: 6, WebkitOverflowScrolling: 'touch' },
-  chip: { padding: '9px 16px', borderRadius: 20, border: '1.5px solid var(--line)', fontSize: 13.5, fontWeight: 600, color: 'var(--ink-soft)', background: 'var(--card)', cursor: 'pointer' },
+  chip: { padding: '9px 16px', borderRadius: 20, border: '1.5px solid #E4E7EE', fontSize: 13.5, fontWeight: 600, color: '#6b7893', background: 'white', cursor: 'pointer' },
   chipMobile: { whiteSpace: 'nowrap', flexShrink: 0 },
-  chipActive: { background: 'var(--moss)', color: 'white', borderColor: 'var(--moss)' },
-  card: { background: 'var(--card)', border: '1px solid var(--line)', borderRadius: 16, padding: '16px 18px', marginBottom: 10, display: 'flex', alignItems: 'flex-start', gap: 14, position: 'relative', overflow: 'hidden' },
-  cardNaoLida: { borderColor: 'var(--moss)' },
+  chipActive: { background: '#22C55E', color: 'white', borderColor: '#22C55E' },
+  card: { background: 'white', border: '1px solid #E4E7EE', borderRadius: 16, padding: '16px 18px', marginBottom: 10, display: 'flex', alignItems: 'flex-start', gap: 14, position: 'relative', overflow: 'hidden' },
+  cardNaoLida: { borderColor: '#22C55E' },
   faixa: { width: 4, alignSelf: 'stretch', borderRadius: 4, flexShrink: 0 },
-  pontoNaoLida: { width: 8, height: 8, borderRadius: '50%', background: 'var(--moss)', flexShrink: 0 },
+  pontoNaoLida: { width: 8, height: 8, borderRadius: '50%', background: '#22C55E', flexShrink: 0 },
   btnWpp: { display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: '#25D366', color: 'white', width: 34, height: 34, borderRadius: 10, textDecoration: 'none', fontSize: 15, flexShrink: 0 },
-  btnMarcar: { background: 'var(--moss-soft)', color: 'var(--moss-deep)', border: 'none', width: 34, height: 34, borderRadius: 10, fontSize: 15, fontWeight: 700, flexShrink: 0, cursor: 'pointer' },
+  btnMarcar: { background: '#EAF3DE', color: '#3B6D11', border: 'none', width: 34, height: 34, borderRadius: 10, fontSize: 15, fontWeight: 700, flexShrink: 0, cursor: 'pointer' },
 };

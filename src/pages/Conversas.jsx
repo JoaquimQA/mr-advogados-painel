@@ -109,9 +109,9 @@ export default function Conversas() {
         />
       </div>
       <div style={styles.listaScroll}>
-        {carregandoLista && <div style={{ padding: 20, color: 'var(--ink-soft)' }}>Carregando...</div>}
+        {carregandoLista && <div style={{ padding: 20, color: '#6b7893' }}>Carregando...</div>}
         {!carregandoLista && listaFiltrada.length === 0 && (
-          <div style={{ padding: 20, color: 'var(--ink-soft)', fontSize: 14 }}>Nenhum contato encontrado.</div>
+          <div style={{ padding: 20, color: '#6b7893', fontSize: 14 }}>Nenhum contato encontrado.</div>
         )}
         {listaFiltrada.map((c) => (
           <div
@@ -130,9 +130,9 @@ export default function Conversas() {
                 </div>
                 {c.em_handoff && <span style={styles.pontoHandoff} title="Aguardando atendimento humano" />}
               </div>
-              <div style={{ fontSize: 12.5, color: 'var(--ink-soft)' }}>{c.numero}</div>
+              <div style={{ fontSize: 12.5, color: '#6b7893' }}>{c.numero}</div>
             </div>
-            <div style={{ fontSize: 11, color: 'var(--ink-soft)', flexShrink: 0 }}>
+            <div style={{ fontSize: 11, color: '#6b7893', flexShrink: 0 }}>
               {c.ultima_interacao ? formataQuando(c.ultima_interacao).split(' ')[1] : ''}
             </div>
           </div>
@@ -144,7 +144,13 @@ export default function Conversas() {
   const painelThread = (
     <div style={styles.threadPane}>
       {!selecionado && (
-        <div style={styles.threadVazia}>Selecione um contato pra ver a conversa.</div>
+        <div style={styles.threadVazia}>
+          <div style={{ fontSize: 44, marginBottom: 14 }}>💬</div>
+          <div style={{ fontWeight: 700, fontSize: 16, color: '#141d2e', marginBottom: 6 }}>Suas conversas aparecem aqui</div>
+          <div style={{ fontSize: 14, maxWidth: 300, lineHeight: 1.5 }}>
+            Selecione um contato à esquerda pra ver o histórico completo de mensagens entre o assistente e o cliente.
+          </div>
+        </div>
       )}
       {selecionado && (
         <>
@@ -154,7 +160,7 @@ export default function Conversas() {
             )}
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ fontWeight: 700, fontSize: 16 }}>{selecionado.nome || selecionado.numero}</div>
-              <div style={{ fontSize: 12.5, color: 'var(--ink-soft)' }}>{selecionado.numero} · {selecionado.etapa}</div>
+              <div style={{ fontSize: 12.5, color: '#6b7893' }}>{selecionado.numero} · {selecionado.etapa}</div>
             </div>
             <a href={linkWhatsApp(selecionado.numero)} target="_blank" rel="noopener noreferrer" style={styles.btnWpp}>💬 WhatsApp</a>
             <button onClick={() => carregarMensagens(selecionado)} style={styles.btnAtualizar} title="Atualizar conversa">🔄</button>
@@ -172,9 +178,9 @@ export default function Conversas() {
           )}
 
           <div style={styles.threadScroll}>
-            {carregandoThread && <div style={{ padding: 20, color: 'var(--ink-soft)' }}>Carregando conversa...</div>}
+            {carregandoThread && <div style={{ padding: 20, color: '#6b7893' }}>Carregando conversa...</div>}
             {!carregandoThread && mensagens.length === 0 && (
-              <div style={{ padding: 20, color: 'var(--ink-soft)', fontSize: 14 }}>Nenhuma mensagem registrada ainda com esse contato.</div>
+              <div style={{ padding: 20, color: '#6b7893', fontSize: 14 }}>Nenhuma mensagem registrada ainda com esse contato.</div>
             )}
             {mensagens.map((m) => {
               const ehCliente = m.role === 'cliente';
@@ -184,7 +190,7 @@ export default function Conversas() {
                     <div style={{ ...styles.bolha, ...(ehCliente ? styles.bolhaCliente : styles.bolhaAgente) }}>
                       {m.texto}
                     </div>
-                    <div style={{ fontSize: 10.5, color: 'var(--ink-soft)', marginTop: 3, textAlign: ehCliente ? 'left' : 'right' }}>
+                    <div style={{ fontSize: 10.5, color: '#6b7893', marginTop: 3, textAlign: ehCliente ? 'left' : 'right' }}>
                       {formataQuando(m.criado_em)}
                       {m.intencao ? ` · ${m.intencao}` : ''}
                       {m.modulo ? ` · ${MODULO_LABEL[m.modulo] || m.modulo}` : ''}
@@ -219,30 +225,30 @@ export default function Conversas() {
 const styles = {
   title: { fontFamily: 'Fraunces, serif', fontSize: 34, fontWeight: 600, marginBottom: 6 },
   titleMobile: { fontSize: 24 },
-  sub: { color: 'var(--ink-soft)', fontSize: 16, marginBottom: 28 },
+  sub: { color: '#6b7893', fontSize: 16, marginBottom: 28 },
   wrapper: { display: 'flex', gap: 20, height: '70vh', minHeight: 480 },
   wrapperMobile: { flexDirection: 'column', height: 'auto', minHeight: 'auto' },
 
-  listaPane: { width: 320, flexShrink: 0, background: 'var(--card)', border: '1px solid var(--line)', borderRadius: 20, display: 'flex', flexDirection: 'column', overflow: 'hidden' },
+  listaPane: { width: 320, flexShrink: 0, background: 'white', border: '1px solid #E4E7EE', borderRadius: 20, display: 'flex', flexDirection: 'column', overflow: 'hidden' },
   listaPaneMobile: { width: '100%' },
-  buscaBox: { padding: 14, borderBottom: '1px solid var(--line)' },
-  buscaInput: { width: '100%', padding: '10px 14px', borderRadius: 10, border: '1.5px solid var(--line)', fontSize: 14, background: 'var(--cream)' },
+  buscaBox: { padding: 14, borderBottom: '1px solid #E4E7EE' },
+  buscaInput: { width: '100%', padding: '10px 14px', borderRadius: 10, border: '1.5px solid #E4E7EE', fontSize: 14, background: '#F5F1EA' },
   listaScroll: { flex: 1, overflowY: 'auto' },
-  itemLista: { display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', borderBottom: '1px solid var(--line)', cursor: 'pointer' },
-  itemListaAtivo: { background: 'var(--moss-soft)' },
-  avatar: { width: 38, height: 38, borderRadius: '50%', background: 'var(--clay-soft)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, color: 'var(--clay)', fontSize: 13, flexShrink: 0 },
-  pontoHandoff: { width: 8, height: 8, borderRadius: '50%', background: 'var(--warning)', flexShrink: 0 },
+  itemLista: { display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', borderBottom: '1px solid #E4E7EE', cursor: 'pointer' },
+  itemListaAtivo: { background: '#EAF3DE' },
+  avatar: { width: 38, height: 38, borderRadius: '50%', background: '#F0997B33', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, color: '#993C1D', fontSize: 13, flexShrink: 0 },
+  pontoHandoff: { width: 8, height: 8, borderRadius: '50%', background: '#854F0B', flexShrink: 0 },
 
-  threadPane: { flex: 1, background: 'var(--card)', border: '1px solid var(--line)', borderRadius: 20, display: 'flex', flexDirection: 'column', overflow: 'hidden', minWidth: 0 },
-  threadVazia: { flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--ink-soft)', fontSize: 15 },
-  threadHeader: { display: 'flex', alignItems: 'center', gap: 12, padding: '14px 18px', borderBottom: '1px solid var(--line)' },
-  btnVoltar: { background: 'none', border: 'none', color: 'var(--moss-deep)', fontWeight: 700, fontSize: 14, padding: 0 },
+  threadPane: { flex: 1, background: 'white', border: '1px solid #E4E7EE', borderRadius: 20, display: 'flex', flexDirection: 'column', overflow: 'hidden', minWidth: 0 },
+  threadVazia: { flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#6b7893', fontSize: 15, textAlign: 'center', padding: 20 },
+  threadHeader: { display: 'flex', alignItems: 'center', gap: 12, padding: '14px 18px', borderBottom: '1px solid #E4E7EE' },
+  btnVoltar: { background: 'none', border: 'none', color: '#3B6D11', fontWeight: 700, fontSize: 14, padding: 0 },
   btnWpp: { background: '#25D366', color: 'white', padding: '8px 14px', borderRadius: 10, fontSize: 13, fontWeight: 700, textDecoration: 'none', flexShrink: 0 },
-  btnAtualizar: { background: 'var(--cream-deep)', border: '1.5px solid var(--line)', borderRadius: 10, width: 36, height: 36, fontSize: 15, cursor: 'pointer', flexShrink: 0 },
-  btnEncerrar: { background: 'var(--moss)', color: 'white', border: 'none', padding: '8px 14px', borderRadius: 10, fontSize: 12.5, fontWeight: 700, flexShrink: 0, whiteSpace: 'nowrap' },
-  avisoHandoff: { padding: '10px 18px', background: 'var(--gold-soft)', color: 'var(--warning)', fontSize: 13, fontWeight: 600 },
+  btnAtualizar: { background: '#F1EFE8', border: '1.5px solid #E4E7EE', borderRadius: 10, width: 36, height: 36, fontSize: 15, cursor: 'pointer', flexShrink: 0 },
+  btnEncerrar: { background: '#22C55E', color: 'white', border: 'none', padding: '8px 14px', borderRadius: 10, fontSize: 12.5, fontWeight: 700, flexShrink: 0, whiteSpace: 'nowrap' },
+  avisoHandoff: { padding: '10px 18px', background: '#FAEEDA', color: '#854F0B', fontSize: 13, fontWeight: 600 },
   threadScroll: { flex: 1, overflowY: 'auto', padding: '18px' },
   bolha: { padding: '10px 14px', borderRadius: 14, fontSize: 14, lineHeight: 1.4 },
-  bolhaCliente: { background: 'var(--cream-deep)', color: 'var(--ink)', borderBottomLeftRadius: 4 },
-  bolhaAgente: { background: 'var(--moss)', color: 'white', borderBottomRightRadius: 4 },
+  bolhaCliente: { background: '#F1EFE8', color: '#141d2e', borderBottomLeftRadius: 4 },
+  bolhaAgente: { background: '#22C55E', color: 'white', borderBottomRightRadius: 4 },
 };

@@ -13,6 +13,7 @@ export default function Configuracoes() {
 
   const [nomeAgente, setNomeAgente] = useState('');
   const [instrucoes, setInstrucoes] = useState('');
+  const [informacoesEscritorio, setInformacoesEscritorio] = useState('');
   const [areas, setAreas] = useState([]);
   const [disclaimer, setDisclaimer] = useState('');
   const [numeroHumano, setNumeroHumano] = useState('');
@@ -26,6 +27,7 @@ export default function Configuracoes() {
     if (!cliente) return;
     setNomeAgente(cliente.nome_agente || '');
     setInstrucoes(cliente.instrucoes_atendimento || '');
+    setInformacoesEscritorio(cliente.informacoes_escritorio || '');
     setAreas(cliente.areas_atuacao || []);
     setDisclaimer(cliente.disclaimer_padrao || '');
     setNumeroHumano(cliente.numero_humano || '');
@@ -45,6 +47,7 @@ export default function Configuracoes() {
       .update({
         nome_agente: nomeAgente,
         instrucoes_atendimento: instrucoes,
+        informacoes_escritorio: informacoesEscritorio,
         areas_atuacao: areas,
         disclaimer_padrao: disclaimer,
         numero_humano: numeroHumano,
@@ -74,13 +77,22 @@ export default function Configuracoes() {
           <label style={styles.label}>Nome do assistente</label>
           <input style={styles.input} value={nomeAgente} onChange={(e) => setNomeAgente(e.target.value)} placeholder="Ex: Assistente do escritório" />
 
-          <label style={styles.label}>Como o assistente deve falar</label>
+          <label style={styles.label}>Como o assistente deve falar (tom)</label>
           <textarea
-            style={{ ...styles.input, minHeight: 90 }}
+            style={{ ...styles.input, minHeight: 70 }}
             value={instrucoes}
             onChange={(e) => setInstrucoes(e.target.value)}
             placeholder="Ex: fale de forma formal e acolhedora, sem gírias. Trate o cliente sempre por 'senhor(a)'."
           />
+
+          <label style={styles.label}>Informações do escritório (fatos que o assistente pode citar)</label>
+          <textarea
+            style={{ ...styles.input, minHeight: 100 }}
+            value={informacoesEscritorio}
+            onChange={(e) => setInformacoesEscritorio(e.target.value)}
+            placeholder={'Ex:\n- Endereço: Rua Tal, 123, Centro\n- Horário de atendimento presencial: seg a sex, 9h-18h\n- Sócios: Dr. Fulano (trabalhista), Dra. Beltrana (cível)\n- Primeira consulta é gratuita, dura 30 minutos'}
+          />
+          <div style={styles.help}>Coloca aqui qualquer detalhe real do escritório que o assistente pode precisar mencionar — endereço, sócios, política de primeira consulta, particularidades do atendimento. Isso é conhecimento, não tom de voz.</div>
 
           <label style={styles.label}>Áreas de atuação do escritório</label>
           <div style={styles.areasGrid}>
