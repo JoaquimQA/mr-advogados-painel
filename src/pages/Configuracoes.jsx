@@ -69,6 +69,8 @@ export default function Configuracoes() {
 
       <div style={styles.tabs}>
         <div onClick={() => setAba('atendimento')} style={{ ...styles.tab, ...(aba === 'atendimento' ? styles.tabActive : {}) }}>Atendimento</div>
+        <div onClick={() => setAba('advogados')} style={{ ...styles.tab, ...(aba === 'advogados' ? styles.tabActive : {}) }}>Advogados</div>
+        <div onClick={() => setAba('excluidos')} style={{ ...styles.tab, ...(aba === 'excluidos' ? styles.tabActive : {}) }}>Números excluídos</div>
         <div onClick={() => setAba('whatsapp')} style={{ ...styles.tab, ...(aba === 'whatsapp' ? styles.tabActive : {}) }}>WhatsApp</div>
       </div>
 
@@ -141,7 +143,158 @@ export default function Configuracoes() {
         </div>
       )}
 
+      {aba === 'advogados' && <Advogados cliente={cliente} />}
+      {aba === 'excluidos' && <NumerosExcluidos cliente={cliente} />}
       {aba === 'whatsapp' && <WhatsAppConecta cliente={cliente} />}
+    </div>
+  );
+}
+
+const AREAS_SUGERIDAS_ADV = AREAS_SUGERIDAS;
+
+function Advogados({ cliente }) {
+  const [lista, setLista] = useState([]);
+  const [carregando, setCarregando] = useState(true);
+  const [form, setForm] = useState({ nome: '', numero: '', areas: [], recebeTodos: false });
+
+  useEffect(() => {
+    if (!cliente) return;
+    carregar();
+  }, [cliente]);
+
+  async function carregar() {
+    setCarregando(true);
+    const { data } = await supabase.from('advogados').select('*').eq('cliente_id', cliente.id).order('criado_em');
+    setLista(data || []);
+    setCarregando(false);
+  }
+
+  function toggleArea(area) {
+    setForm((prev) => ({ ...prev, areas: prev.areas.includes(area) ? prev.areas.filter((a) => a !== area) : [...prev.areas, area] }));
+  }
+
+  async function adicionar() {
+    if (!form.nome || !form.numero) return;
+    await supabase.from('advogados').insert({
+      cliente_id: cliente.id,
+      nome: form.nome,
+      numero: form.numero.replace(/\D/g, ''),
+      areas_atuacao: form.areas,
+      recebe_todos_avisos: form.recebeTodos,
+    });
+    setForm({ nome: '', numero: '', areas: [], recebeTodos: false });
+    carregar();
+  }
+
+  async function remover(id) {
+    if (!confirm('Remover esse advogado da lista?')) return;
+    await supabase.from('advogados').delete().eq('id', id);
+    carregar();
+  }
+
+  return (
+    <div style={styles.card}>
+      <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 4 }}>Advogados que recebem avisos</div>
+      <div style={{ fontSize: 13, color: '#6b7893', marginBottom: 18 }}>
+        Se um caso for de uma área específica, o aviso vai pro advogado responsável por ela. Quem tiver "recebe todos os avisos" marcado recebe independente da área.
+      </div>
+
+      {!carregando && lista.map((a) => (
+        <div key={a.id} style={styles.linhaAdvogado}>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontWeight: 700, fontSize: 14 }}>{a.nome} {a.recebe_todos_avisos && <span style={{ fontSize: 11, color: '#3B6D11' }}>· recebe tudo</span>}</div>
+            <div style={{ fontSize: 12.5, color: '#6b7893' }}>{a.numero}{a.areas_atuacao?.length ? ` · ${a.areas_atuacao.join(', ')}` : ''}</div>
+          </div>
+          <button onClick={() => remover(a.id)} style={styles.btnRemoverPequeno}>Remover</button>
+        </div>
+      ))}
+
+      <div style={styles.divider} />
+
+      <label style={styles.label}>Nome</label>
+      <input style={styles.input} value={form.nome} onChange={(e) => setForm({ ...form, nome: e.target.value })} placeholder="Dr. Fulano de Tal" />
+
+      <label style={styles.label}>WhatsApp</label>
+      <input style={styles.input} value={form.numero} onChange={(e) => setForm({ ...form, numero: e.target.value })} placeholder="51999999999" />
+
+      <label style={styles.label}>Áreas que ele atende (opcional)</label>
+      <div style={styles.areasGrid}>
+        {AREAS_SUGERIDAS_ADV.map((a) => (
+          <div key={a} onClick={() => toggleArea(a)} style={{ ...styles.areaChip, ...(form.areas.includes(a) ? styles.areaChipAtiva : {}) }}>{a}</div>
+        ))}
+      </div>
+
+      <div style={{ ...styles.checkboxRow, marginTop: 14 }}>
+        <input type="checkbox" checked={form.recebeTodos} onChange={(e) => setForm({ ...form, recebeTodos: e.target.checked })} style={{ width: 20, height: 20, marginTop: 2 }} />
+        <div>
+          <div style={{ fontWeight: 700, fontSize: 14 }}>Recebe todos os avisos</div>
+          <div style={{ fontSize: 12.5, color: '#6b7893' }}>Independente da área do caso — bom pra sócio principal ou responsável geral.</div>
+        </div>
+      </div>
+
+      <button onClick={adicionar} style={{ ...styles.btnPrimary, marginTop: 18 }}>+ Adicionar advogado</button>
+    </div>
+  );
+}
+
+function NumerosExcluidos({ cliente }) {
+  const [lista, setLista] = useState([]);
+  const [carregando, setCarregando] = useState(true);
+  const [numero, setNumero] = useState('');
+  const [descricao, setDescricao] = useState('');
+
+  useEffect(() => {
+    if (!cliente) return;
+    carregar();
+  }, [cliente]);
+
+  async function carregar() {
+    setCarregando(true);
+    const { data } = await supabase.from('numeros_excluidos').select('*').eq('cliente_id', cliente.id).order('criado_em', { ascending: false });
+    setLista(data || []);
+    setCarregando(false);
+  }
+
+  async function adicionar() {
+    const limpo = numero.replace(/\D/g, '');
+    if (!limpo) return;
+    await supabase.from('numeros_excluidos').insert({ cliente_id: cliente.id, numero: limpo, descricao: descricao || null });
+    setNumero('');
+    setDescricao('');
+    carregar();
+  }
+
+  async function remover(id) {
+    await supabase.from('numeros_excluidos').delete().eq('id', id);
+    carregar();
+  }
+
+  return (
+    <div style={styles.card}>
+      <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 4 }}>Números excluídos da automação</div>
+      <div style={{ fontSize: 13, color: '#6b7893', marginBottom: 18 }}>
+        Números aqui nunca recebem resposta automática do assistente — útil pra fornecedores, spam, ou alguém que pediu pra não ser contatado.
+      </div>
+
+      {!carregando && lista.map((n) => (
+        <div key={n.id} style={styles.linhaAdvogado}>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontWeight: 700, fontSize: 14 }}>{n.numero}</div>
+            {n.descricao && <div style={{ fontSize: 12.5, color: '#6b7893' }}>{n.descricao}</div>}
+          </div>
+          <button onClick={() => remover(n.id)} style={styles.btnRemoverPequeno}>Remover</button>
+        </div>
+      ))}
+
+      <div style={styles.divider} />
+
+      <label style={styles.label}>Número</label>
+      <input style={styles.input} value={numero} onChange={(e) => setNumero(e.target.value)} placeholder="51999999999" />
+
+      <label style={styles.label}>Motivo (opcional)</label>
+      <input style={styles.input} value={descricao} onChange={(e) => setDescricao(e.target.value)} placeholder="Ex: fornecedor, pediu pra não receber mais" />
+
+      <button onClick={adicionar} style={{ ...styles.btnPrimary, marginTop: 18 }}>+ Excluir número</button>
     </div>
   );
 }
@@ -211,6 +364,8 @@ function WhatsAppConecta({ cliente }) {
 }
 
 const styles = {
+  linhaAdvogado: { display: 'flex', alignItems: 'center', gap: 12, padding: '12px 0', borderBottom: '1px solid #E4E7EE' },
+  btnRemoverPequeno: { background: 'transparent', color: '#E24B4A', border: '1.5px solid #E4E7EE', padding: '7px 12px', borderRadius: 8, fontSize: 12.5, fontWeight: 600, cursor: 'pointer', flexShrink: 0 },
   title: { fontFamily: 'Fraunces, serif', fontSize: 34, fontWeight: 600, marginBottom: 6 },
   titleMobile: { fontSize: 24 },
   sub: { color: '#6b7893', fontSize: 16, marginBottom: 24 },

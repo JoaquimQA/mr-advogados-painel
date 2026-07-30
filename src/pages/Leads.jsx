@@ -86,6 +86,24 @@ export default function Leads() {
     await supabase.from('contatos').delete().eq('id', c.id);
   }
 
+  const [modalProcesso, setModalProcesso] = useState(null);
+  const [numeroProcessoInput, setNumeroProcessoInput] = useState('');
+
+  function abrirVinculoProcesso(c) {
+    setModalProcesso(c);
+    setNumeroProcessoInput(c.numero_processo || '');
+  }
+
+  async function salvarProcesso() {
+    const valor = numeroProcessoInput.trim();
+    await supabase
+      .from('contatos')
+      .update({ numero_processo: valor || null, status_processo: valor ? 'em_andamento' : null })
+      .eq('id', modalProcesso.id);
+    setContatos((prev) => prev.map((c) => (c.id === modalProcesso.id ? { ...c, numero_processo: valor || null } : c)));
+    setModalProcesso(null);
+  }
+
   function linkWhatsApp(numero) {
     return `https://wa.me/${numero}`;
   }
@@ -152,6 +170,7 @@ export default function Leads() {
               ))}
             </select>
             <a href={linkWhatsApp(c.numero)} target="_blank" rel="noopener noreferrer" style={styles.btnWpp} title="Chamar no WhatsApp">💬</a>
+            <button onClick={() => abrirVinculoProcesso(c)} style={{ ...styles.btnWpp, background: c.numero_processo ? '#0C447C' : '#E4E7EE', color: c.numero_processo ? 'white' : '#6b7893' }} title="Vincular processo">⚖️</button>
             <button onClick={() => excluir(c)} style={styles.btnDelete} title="Excluir">🗑️</button>
           </div>
         );
@@ -176,6 +195,29 @@ export default function Leads() {
             <div style={{ display: 'flex', gap: 10, marginTop: 22 }}>
               <button onClick={criarLead} disabled={salvandoNovo} style={styles.btnPrimary}>{salvandoNovo ? 'Salvando...' : 'Criar'}</button>
               <button onClick={() => setModalAberto(false)} style={styles.btnSecondary}>Cancelar</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {modalProcesso && (
+        <div style={styles.overlay} onClick={() => setModalProcesso(null)}>
+          <div style={styles.modal} onClick={(e) => e.stopPropagation()}>
+            <div style={{ fontWeight: 700, fontSize: 20, marginBottom: 6, fontFamily: 'Fraunces, serif' }}>Vincular processo</div>
+            <div style={{ fontSize: 13.5, color: '#6b7893', marginBottom: 16 }}>{modalProcesso.nome || modalProcesso.numero}</div>
+
+            <label style={styles.label}>Número do processo</label>
+            <input
+              style={styles.input}
+              value={numeroProcessoInput}
+              onChange={(e) => setNumeroProcessoInput(e.target.value)}
+              placeholder="0000000-00.0000.0.00.0000"
+            />
+            <div style={{ fontSize: 12.5, color: '#6b7893', marginTop: 6 }}>Deixa em branco e salva pra desvincular.</div>
+
+            <div style={{ display: 'flex', gap: 10, marginTop: 22 }}>
+              <button onClick={salvarProcesso} style={styles.btnPrimary}>Salvar</button>
+              <button onClick={() => setModalProcesso(null)} style={styles.btnSecondary}>Cancelar</button>
             </div>
           </div>
         </div>
